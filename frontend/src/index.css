@@ -34,6 +34,11 @@ code {
         source-code-pro, Menlo, Monaco, Consoas, "Courier New", monospace;
 }
 
+/* Hide Emergent badge */
+#emergent-badge {
+    display: none !important;
+}
+
 /* Custom Animations */
 @keyframes fade-in {
     from {
