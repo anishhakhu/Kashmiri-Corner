@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from datetime import datetime
 from typing import Optional
 import uuid
@@ -12,16 +12,8 @@ class InquiryCreate(BaseModel):
 
 
 class Inquiry(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    name: str
-    email: str
-    phone: str
-    message: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    status: str = "new"  # new, read, responded
-    
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "John Doe",
                 "email": "john@example.com",
@@ -29,6 +21,15 @@ class Inquiry(BaseModel):
                 "message": "I'm interested in Kashmiri saffron. Please let me know about availability.",
             }
         }
+    )
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    email: str
+    phone: str
+    message: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    status: str = "new"  # new, read, responded
 
 
 class InquiryResponse(BaseModel):
