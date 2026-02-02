@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const ContactPage = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -9,7 +13,8 @@ const ContactPage = () => {
     phone: '',
     message: '',
   });
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formState, setFormState] = useState('idle'); // idle, submitting, success, error
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 100);
@@ -22,14 +27,36 @@ const ContactPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Mock form submission
-    setFormSubmitted(true);
-    setTimeout(() => {
-      setFormSubmitted(false);
-      setFormData({ name: '', email: '', phone: '', message: '' });
-    }, 3000);
+    setFormState('submitting');
+    setErrorMessage('');
+
+    try {
+      const response = await axios.post(`${API}/contact`, formData);
+      
+      if (response.data.success) {
+        setFormState('success');
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setFormState('idle');
+          setFormData({ name: '', email: '', phone: '', message: '' });
+        }, 4000);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setFormState('error');
+      setErrorMessage(
+        error.response?.data?.detail || 
+        'Failed to submit inquiry. Please try calling us directly.'
+      );
+      
+      // Reset error state after 5 seconds
+      setTimeout(() => {
+        setFormState('idle');
+        setErrorMessage('');
+      }, 5000);
+    }
   };
 
   return (
@@ -93,7 +120,7 @@ const ContactPage = () => {
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       Email
                     </h3>
-                    <p className="text-gray-600">info@kashmiricorner.com</p>
+                    <p className="text-gray-600">thekashmiricorner@gmail.com</p>
                   </div>
                 </div>
               </div>
@@ -137,16 +164,16 @@ const ContactPage = () => {
               Send Us a Message
             </h2>
 
-            {formSubmitted ? (
+            {formState === 'success' ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Send className="w-8 h-8 text-green-600" />
+                  <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
                   Message Sent!
                 </h3>
                 <p className="text-gray-600">
-                  Thank you for reaching out. We'll get back to you soon.
+                  Thank you for reaching out. We'll get back to you soon via email or phone.
                 </p>
               </div>
             ) : (
@@ -165,7 +192,8 @@ const ContactPage = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                    disabled={formState === 'submitting'}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="Enter your name"
                   />
                 </div>
@@ -184,7 +212,8 @@ const ContactPage = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                    disabled={formState === 'submitting'}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -203,7 +232,8 @@ const ContactPage = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                    disabled={formState === 'submitting'}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="Enter your phone number"
                   />
                 </div>
@@ -222,17 +252,37 @@ const ContactPage = () => {
                     onChange={handleChange}
                     required
                     rows={5}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all resize-none"
+                    disabled={formState === 'submitting'}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all resize-none disabled:bg-gray-100"
                     placeholder="Tell us about your inquiry..."
                   />
                 </div>
 
+                {formState === 'error' && (
+                  <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                    <div className="flex items-start">
+                      <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
+                      <p className="text-red-700 text-sm">{errorMessage}</p>
+                    </div>
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center px-6 py-4 bg-amber-700 hover:bg-amber-800 text-white font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  disabled={formState === 'submitting'}
+                  className="w-full flex items-center justify-center px-6 py-4 bg-amber-700 hover:bg-amber-800 text-white font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  <Send className="w-5 h-5 mr-2" />
-                  Send Message
+                  {formState === 'submitting' ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-2" />
+                      Send Message
+                    </>
+                  )}
                 </button>
               </form>
             )}
