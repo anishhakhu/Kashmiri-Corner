@@ -104,7 +104,8 @@ class EmailService:
 
             # Create SMTP connection and send email
             logger.info("Connecting to SMTP server...")
-            server = smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=30)
+            server = smtplib.SMTP()
+            server.connect(self.smtp_host, self.smtp_port)
             logger.info("Connected. Sending EHLO...")
             server.ehlo()
             logger.info("Starting TLS...")
