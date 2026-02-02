@@ -3,7 +3,7 @@ import { MessageCircle } from 'lucide-react';
 
 const WhatsAppButton = () => {
   const phoneNumber = '919810721166'; // Include country code (91 for India)
-  const message = "Hello Kashmiri Corner, I'm interested in your products and would like to check availability.";
+  const message = "Hello. I'm interested in Kashmiri Corner's products and would like to check availability.";
   
   const handleClick = () => {
     const encodedMessage = encodeURIComponent(message);
