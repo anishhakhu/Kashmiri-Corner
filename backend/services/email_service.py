@@ -101,11 +101,14 @@ class EmailService:
             msg.attach(part1)
             msg.attach(part2)
 
-            # Send email
-            with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
-                server.starttls()
-                server.login(self.smtp_user, self.smtp_password)
-                server.send_message(msg)
+            # Create SMTP connection and send email
+            server = smtplib.SMTP(self.smtp_host, self.smtp_port)
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(self.smtp_user, self.smtp_password)
+            server.sendmail(self.from_email, self.notification_email, msg.as_string())
+            server.quit()
 
             logger.info(f"Email notification sent successfully for inquiry from {inquiry_data['name']}")
             return True
