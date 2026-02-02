@@ -126,7 +126,7 @@ const ContactPage = () => {
               </div>
 
               <a
-                href="https://maps.google.com/?q=FG83+MF+Greater+Noida,+Uttar+Pradesh"
+                href="https://maps.app.goo.gl/gMx1KQiFtycWrnq77"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-amber-600"
@@ -154,7 +154,7 @@ const ContactPage = () => {
               <div className="space-y-2 text-gray-700">
                 <p className="flex justify-between">
                   <span>Monday - Saturday:</span>
-                  <span className="font-medium">9:00 AM - 7:00 PM</span>
+                  <span className="font-medium">11:00 AM - 8:30 PM</span>
                 </p>
                 <p className="flex justify-between">
                   <span>Sunday:</span>
