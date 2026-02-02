@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -9,6 +9,10 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List
 import uuid
 from datetime import datetime, timezone
+
+# Import inquiry models and email service
+from models.inquiry import InquiryCreate, Inquiry, InquiryResponse
+from services.email_service import email_service
 
 
 ROOT_DIR = Path(__file__).parent
@@ -65,6 +69,61 @@ async def get_status_checks():
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
     
     return status_checks
+
+
+# Contact Form Endpoint
+@api_router.post("/contact", response_model=InquiryResponse)
+async def submit_contact_form(inquiry_input: InquiryCreate):
+    """
+    Submit a contact form inquiry
+    - Stores inquiry in MongoDB
+    - Sends email notification
+    """
+    try:
+        # Create inquiry object
+        inquiry = Inquiry(
+            name=inquiry_input.name,
+            email=inquiry_input.email,
+            phone=inquiry_input.phone,
+            message=inquiry_input.message
+        )
+        
+        # Store in database
+        inquiry_dict = inquiry.model_dump()
+        inquiry_dict['created_at'] = inquiry_dict['created_at'].isoformat()
+        await db.inquiries.insert_one(inquiry_dict)
+        
+        logger.info(f"New inquiry stored: {inquiry.id} from {inquiry.name}")
+        
+        # Send email notification (non-blocking, don't fail if email fails)
+        try:
+            email_sent = email_service.send_inquiry_notification({
+                'name': inquiry.name,
+                'email': inquiry.email,
+                'phone': inquiry.phone,
+                'message': inquiry.message
+            })
+            
+            if email_sent:
+                logger.info(f"Email notification sent for inquiry {inquiry.id}")
+            else:
+                logger.warning(f"Email notification failed for inquiry {inquiry.id}")
+        except Exception as email_error:
+            logger.error(f"Email service error: {str(email_error)}")
+        
+        return InquiryResponse(
+            success=True,
+            message="Thank you for your inquiry! We'll get back to you soon.",
+            inquiry_id=inquiry.id
+        )
+        
+    except Exception as e:
+        logger.error(f"Error processing inquiry: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to submit inquiry. Please try again or contact us directly."
+        )
+
 
 # Include the router in the main app
 app.include_router(api_router)
