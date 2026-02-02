@@ -68,29 +68,8 @@
             }
         </style>
         
-        <script>
-            // Remove Emergent badge completely
-            document.addEventListener('DOMContentLoaded', function() {
-                const removeBadge = () => {
-                    const badge = document.getElementById('emergent-badge');
-                    if (badge) {
-                        badge.remove();
-                    }
-                };
-                
-                // Remove immediately
-                removeBadge();
-                
-                // Keep checking and removing if it reappears
-                setInterval(removeBadge, 1000);
-                
-                // Also use MutationObserver to catch it being added
-                const observer = new MutationObserver(removeBadge);
-                observer.observe(document.body, { childList: true, subtree: true });
-            });
-        </script>
-        
-        <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
+        <!-- Emergent script commented out to remove badge -->
+        <!-- <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script> -->
         <!--
         These two scripts have been added for the Visual Edits, please do not edit or remove them
         -->
