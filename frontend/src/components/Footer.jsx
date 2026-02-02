@@ -66,7 +66,7 @@ const Footer = () => {
               </li>
               <li className="flex items-start text-gray-600 text-sm">
                 <MapPin className="w-4 h-4 mr-2 mt-1 text-amber-700 flex-shrink-0" />
-                Kashmir, India
+                Greater Noida, Uttar Pradesh
               </li>
             </ul>
           </div>

@@ -125,7 +125,12 @@ const ContactPage = () => {
                 </div>
               </div>
 
-              <div className="block bg-white p-6 rounded-2xl shadow-md border-l-4 border-amber-600">
+              <a
+                href="https://maps.google.com/?q=FG83+MF+Greater+Noida,+Uttar+Pradesh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-amber-600"
+              >
                 <div className="flex items-start">
                   <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-6 h-6 text-amber-700" />
@@ -134,10 +139,11 @@ const ContactPage = () => {
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       Location
                     </h3>
-                    <p className="text-gray-600">Kashmir, India</p>
+                    <p className="text-gray-600">Greater Noida, Uttar Pradesh</p>
+                    <p className="text-sm text-amber-700 mt-1">Click to view on Google Maps</p>
                   </div>
                 </div>
-              </div>
+              </a>
             </div>
 
             {/* Business Hours */}
