@@ -102,21 +102,23 @@ class EmailService:
             msg.attach(part1)
             msg.attach(part2)
 
-            # Create SMTP connection and send email
+            # Create SMTP connection and send email  
             logger.info("Connecting to SMTP server...")
-            server = smtplib.SMTP()
-            server.connect(self.smtp_host, self.smtp_port)
+            server = smtplib.SMTP(self.smtp_host, self.smtp_port)
             logger.info("Connected. Sending EHLO...")
-            server.ehlo()
+            code1, response1 = server.ehlo()
+            logger.info(f"EHLO response: {code1}")
             logger.info("Starting TLS...")
             server.starttls()
             logger.info("Sending second EHLO...")
-            server.ehlo()
+            code2, response2 = server.ehlo()
+            logger.info(f"Second EHLO response: {code2}")
             logger.info("Logging in...")
             server.login(self.smtp_user, self.smtp_password)
             logger.info("Sending email...")
             server.sendmail(self.from_email, [self.notification_email], msg.as_string())
-            logger.info(f"Email notification sent successfully for inquiry from {inquiry_data['name']}")
+            server.quit()
+            logger.info(f"✓ Email notification sent successfully for inquiry from {inquiry_data['name']}")
             return True
 
         except Exception as e:
