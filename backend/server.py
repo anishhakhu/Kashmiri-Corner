@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 
 # Import inquiry models and email service
 from models.inquiry import InquiryCreate, Inquiry, InquiryResponse
-from services.email_service import email_service
+from services.email_service import get_email_service
 
 
 ROOT_DIR = Path(__file__).parent
@@ -97,6 +97,7 @@ async def submit_contact_form(inquiry_input: InquiryCreate):
         
         # Send email notification (non-blocking, don't fail if email fails)
         try:
+            email_service = get_email_service()
             email_sent = email_service.send_inquiry_notification({
                 'name': inquiry.name,
                 'email': inquiry.email,

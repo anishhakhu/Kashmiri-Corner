@@ -16,6 +16,8 @@ class EmailService:
         self.smtp_password = os.getenv("SMTP_PASSWORD")
         self.from_email = os.getenv("SMTP_FROM_EMAIL")
         self.notification_email = os.getenv("NOTIFICATION_EMAIL")
+        
+        logger.info(f"EmailService initialized: host={self.smtp_host}, port={self.smtp_port}")
 
     def send_inquiry_notification(self, inquiry_data: dict) -> bool:
         """Send email notification for new inquiry"""
@@ -103,9 +105,9 @@ class EmailService:
             msg.attach(part2)
 
             # Create SMTP connection and send email  
-            logger.info("Connecting to SMTP server...")
+            logger.info(f"Connecting to SMTP: {self.smtp_host}:{self.smtp_port}")
             server = smtplib.SMTP(self.smtp_host, self.smtp_port, local_hostname='localhost')
-            logger.info(f"✓ Connected to {self.smtp_host}:{self.smtp_port}")
+            logger.info("✓ SMTP Connected")
             server.ehlo()
             logger.info("✓ EHLO sent")
             server.starttls()
@@ -116,7 +118,7 @@ class EmailService:
             logger.info("✓ Logged in")
             server.sendmail(self.from_email, [self.notification_email], msg.as_string())
             server.quit()
-            logger.info(f"✓✓ Email sent successfully for inquiry from {inquiry_data['name']}")
+            logger.info(f"✓✓ Email sent successfully to {self.notification_email} for inquiry from {inquiry_data['name']}")
             return True
 
         except Exception as e:
@@ -133,5 +135,6 @@ class EmailService:
                     pass
 
 
-# Create singleton instance
-email_service = EmailService()
+# Function to get email service instance (created after .env is loaded)
+def get_email_service():
+    return EmailService()
