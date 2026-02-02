@@ -19,6 +19,7 @@ class EmailService:
 
     def send_inquiry_notification(self, inquiry_data: dict) -> bool:
         """Send email notification for new inquiry"""
+        server = None
         try:
             # Create message
             msg = MIMEMultipart('alternative')
@@ -102,20 +103,33 @@ class EmailService:
             msg.attach(part2)
 
             # Create SMTP connection and send email
-            server = smtplib.SMTP(self.smtp_host, self.smtp_port)
+            logger.info("Connecting to SMTP server...")
+            server = smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=30)
+            logger.info("Connected. Sending EHLO...")
             server.ehlo()
+            logger.info("Starting TLS...")
             server.starttls()
+            logger.info("Sending second EHLO...")
             server.ehlo()
+            logger.info("Logging in...")
             server.login(self.smtp_user, self.smtp_password)
-            server.sendmail(self.from_email, self.notification_email, msg.as_string())
-            server.quit()
-
+            logger.info("Sending email...")
+            server.sendmail(self.from_email, [self.notification_email], msg.as_string())
             logger.info(f"Email notification sent successfully for inquiry from {inquiry_data['name']}")
             return True
 
         except Exception as e:
             logger.error(f"Failed to send email notification: {str(e)}")
+            logger.error(f"Error type: {type(e).__name__}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return False
+        finally:
+            if server:
+                try:
+                    server.quit()
+                except:
+                    pass
 
 
 # Create singleton instance
