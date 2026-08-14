@@ -1,4 +1,4 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
-Sitemap: https://www.kashmiricorner.com/sitemap.xml
+Sitemap: https://anishhakhu.github.io/Kashmiri-Corner/sitemap.xml

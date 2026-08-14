@@ -11,7 +11,7 @@ import ContactPage from "./pages/ContactPage";
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />

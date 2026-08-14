@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
-import axios from 'axios';
+import { Phone, Mail, MapPin, Send, CheckCircle } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const WHATSAPP_NUMBER = '919810721166';
+const CONTACT_EMAIL = 'thekashmiricorner@gmail.com';
+
+const buildEnquiryText = ({ name, email, phone, message }) =>
+  `New enquiry from Kashmiri Corner website\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`;
 
 const ContactPage = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -13,8 +15,7 @@ const ContactPage = () => {
     phone: '',
     message: '',
   });
-  const [formState, setFormState] = useState('idle'); // idle, submitting, success, error
-  const [errorMessage, setErrorMessage] = useState('');
+  const [formState, setFormState] = useState('idle'); // idle, success
 
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 100);
@@ -27,36 +28,22 @@ const ContactPage = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setFormState('submitting');
-    setErrorMessage('');
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildEnquiryText(formData))}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setFormState('success');
 
-    try {
-      const response = await axios.post(`${API}/contact`, formData);
-      
-      if (response.data.success) {
-        setFormState('success');
-        // Reset form after 3 seconds
-        setTimeout(() => {
-          setFormState('idle');
-          setFormData({ name: '', email: '', phone: '', message: '' });
-        }, 4000);
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setFormState('error');
-      setErrorMessage(
-        error.response?.data?.detail || 
-        'Failed to submit inquiry. Please try calling us directly.'
-      );
-      
-      // Reset error state after 5 seconds
-      setTimeout(() => {
-        setFormState('idle');
-        setErrorMessage('');
-      }, 5000);
-    }
+    setTimeout(() => {
+      setFormState('idle');
+      setFormData({ name: '', email: '', phone: '', message: '' });
+    }, 4000);
+  };
+
+  const handleEmailInstead = () => {
+    const subject = encodeURIComponent(`Website enquiry from ${formData.name || 'a customer'}`);
+    const body = encodeURIComponent(buildEnquiryText(formData));
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -176,10 +163,11 @@ const ContactPage = () => {
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  Message Sent!
+                  Message Ready!
                 </h3>
                 <p className="text-gray-600">
-                  Thank you for reaching out. We'll get back to you soon via email or phone.
+                  We've opened WhatsApp with your message. Just hit send and
+                  we'll get back to you shortly.
                 </p>
               </div>
             ) : (
@@ -198,8 +186,7 @@ const ContactPage = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    disabled={formState === 'submitting'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                     placeholder="Enter your name"
                   />
                 </div>
@@ -218,8 +205,7 @@ const ContactPage = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    disabled={formState === 'submitting'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -238,8 +224,7 @@ const ContactPage = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    disabled={formState === 'submitting'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                     placeholder="Enter your phone number"
                   />
                 </div>
@@ -258,37 +243,26 @@ const ContactPage = () => {
                     onChange={handleChange}
                     required
                     rows={5}
-                    disabled={formState === 'submitting'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all resize-none disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all resize-none"
                     placeholder="Tell us about your inquiry..."
                   />
                 </div>
 
-                {formState === 'error' && (
-                  <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                    <div className="flex items-start">
-                      <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-                      <p className="text-red-700 text-sm">{errorMessage}</p>
-                    </div>
-                  </div>
-                )}
-
                 <button
                   type="submit"
-                  disabled={formState === 'submitting'}
-                  className="w-full flex items-center justify-center px-6 py-4 bg-amber-700 hover:bg-amber-800 text-white font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="w-full flex items-center justify-center px-6 py-4 bg-amber-700 hover:bg-amber-800 text-white font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
-                  {formState === 'submitting' ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5 mr-2" />
-                      Send Message
-                    </>
-                  )}
+                  <Send className="w-5 h-5 mr-2" />
+                  Send via WhatsApp
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleEmailInstead}
+                  className="w-full flex items-center justify-center px-6 py-3 border border-amber-700 text-amber-800 hover:bg-amber-50 font-medium rounded-xl transition-all duration-300"
+                >
+                  <Mail className="w-5 h-5 mr-2" />
+                  Send via Email instead
                 </button>
               </form>
             )}
