@@ -26,51 +26,72 @@ const Navbar = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
           ? 'bg-white/95 backdrop-blur-md shadow-md'
-          : 'bg-transparent'
+          : 'bg-gradient-to-b from-black/50 to-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="text-2xl font-bold text-amber-700">
+            <div
+              className={`text-2xl font-bold transition-colors duration-300 ${
+                isScrolled ? 'text-amber-700' : 'text-white drop-shadow-md'
+              }`}
+            >
               Kashmiri Corner
             </div>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`text-base font-medium transition-all duration-200 relative group ${
-                  location.pathname === link.path
-                    ? 'text-amber-700'
-                    : isScrolled
-                    ? 'text-gray-700 hover:text-amber-700'
-                    : 'text-gray-800 hover:text-amber-700'
-                }`}
-              >
-                {link.name}
-                <span
-                  className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-700 transition-all duration-200 group-hover:w-full ${
-                    location.pathname === link.path ? 'w-full' : ''
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.path;
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`text-base font-medium transition-all duration-200 relative group ${
+                    isScrolled
+                      ? isActive
+                        ? 'text-amber-700'
+                        : 'text-gray-700 hover:text-amber-700'
+                      : isActive
+                      ? 'text-white drop-shadow-md'
+                      : 'text-white/80 hover:text-white drop-shadow-md'
                   }`}
-                />
-              </Link>
-            ))}
+                >
+                  {link.name}
+                  <span
+                    className={`absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-200 group-hover:w-full ${
+                      isScrolled ? 'bg-amber-700' : 'bg-white'
+                    } ${isActive ? 'w-full' : ''}`}
+                  />
+                </Link>
+              );
+            })}
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMobileMenuOpen}
+            className={`md:hidden p-2 rounded-lg transition-colors ${
+              isScrolled ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+            }`}
           >
             {isMobileMenuOpen ? (
-              <X className="w-6 h-6 text-gray-700" />
+              <X
+                className={`w-6 h-6 ${
+                  isScrolled ? 'text-gray-700' : 'text-white drop-shadow-md'
+                }`}
+              />
             ) : (
-              <Menu className="w-6 h-6 text-gray-700" />
+              <Menu
+                className={`w-6 h-6 ${
+                  isScrolled ? 'text-gray-700' : 'text-white drop-shadow-md'
+                }`}
+              />
             )}
           </button>
         </div>
