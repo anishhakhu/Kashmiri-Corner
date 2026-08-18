@@ -45,8 +45,9 @@ jobs:
           cp build/index.html build/404.html
           touch build/.nojekyll
 
-      # Without this the legacy branch-based build keeps racing this workflow and republishing stale content.
+      # Best effort: stops the legacy branch-based build from racing this workflow. Needs Settings > Pages > Source = GitHub Actions if it fails.
       - name: Force Pages to build from Actions
+        continue-on-error: true
         run: gh api -X PUT "repos/$GITHUB_REPOSITORY/pages" -f build_type=workflow
         env:
           GH_TOKEN: ${{ github.token }}
